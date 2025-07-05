@@ -21,38 +21,46 @@
   // 1. Inject BotUI CSS
   var css1 = document.createElement('link');
   css1.rel = 'stylesheet';
-  css1.href = 'https://unpkg.com/botui/build/botui.min.css';
+  css1.href = 'https://cdn.jsdelivr.net/npm/botui/build/botui.min.css';
   var css2 = document.createElement('link');
   css2.rel = 'stylesheet';
-  css2.href = 'https://unpkg.com/botui/build/botui-theme-default.css';
+  css2.href = 'https://cdn.jsdelivr.net/npm/botui/build/botui-theme-default.css';
   document.head.appendChild(css1);
   document.head.appendChild(css2);
 
   // 2. Create widget container
   var container = document.createElement('div');
   container.id = 'botui-widget';
-  container.style.position = 'fixed';
-  container.style.bottom = '20px';
-  container.style.right = '20px';
-  container.style.maxWidth = '320px';
-  container.style.zIndex = '99999';
+  Object.assign(container.style, {
+    position: 'fixed',
+    bottom: '20px',
+    right: '20px',
+    maxWidth: '320px',
+    zIndex: '99999'
+  });
   document.body.appendChild(container);
 
-  // 3. Load Vue and BotUI
+  // 3. Load Vue.js and BotUI correctly from jsDelivr
   function loadScript(src, cb) {
     var s = document.createElement('script');
     s.src = src;
     s.async = true;
     s.onload = cb;
+    s.onerror = function() { console.error('Failed to load ' + src); };
     document.head.appendChild(s);
   }
 
-  loadScript('https://unpkg.com/vue@2', function() {
-    loadScript('https://unpkg.com/botui/build/botui.min.js', initChat);
+  // Load Vue then BotUI
+  loadScript('https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js', function() {
+    loadScript('https://cdn.jsdelivr.net/npm/botui/build/botui.min.js', initChat);
   });
 
   // 4. Initialize chat UI
   function initChat() {
+    if (!window.BotUI) {
+      console.error('BotUI not found');
+      return;
+    }
     var botui = new BotUI('botui-widget');
 
     botui.message.add({ content: '👋 Hi there! How can I help you today?' })
@@ -61,7 +69,7 @@
     function promptUser() {
       botui.action.text({ action: { placeholder: 'Type your question…' } })
         .then(function(res) {
-          var text = (res.value||'').trim();
+          var text = (res.value || '').trim();
           if (!text) return promptUser();
 
           botui.message.add({ human: true, content: text });
@@ -71,12 +79,12 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ text: text })
           })
-          .then(function(r){ return r.json(); })
+          .then(function(r) { return r.json(); })
           .then(function(data) {
             botui.message.add({ content: data.reply || '🤖 ...' });
             promptUser();
           })
-          .catch(function(){
+          .catch(function() {
             botui.message.add({ content: '⚠️ Something went wrong.' });
             promptUser();
           });
