@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chat Widget Test</title>
+</head>
+<body>
+  <h1>Chat Widget Test</h1>
+
+  <!-- 1) Embed snippet: adjust ?cb= to bust cache as you update -->
+  <script>
+    (function(w,d){
+      w._chatConfig = { endpoint: 'https://api.yourdomain.com/chat' };
+      var s = d.createElement('script');
+      s.src   = 'https://cdn.jsdelivr.net/gh/alvin-mampuai/web-widget@main/embed.js?cb=3';
+      s.async = true;
+      d.head.appendChild(s);
+    })(window,document);
+  </script>
+</body>
+</html>
